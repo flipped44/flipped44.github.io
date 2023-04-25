@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>七夕到了——属于程序员的浪漫</title>>
+    <style type="text/css">
+        *{ margin:0; padding:0;}
+        body{
+            background:#000;
+            overflow:hidden;
+        }
+        #perspective{
+            perspective:800px;
+        }
+        #wrap{
+            width:120px;  /*133:200  4:6  */
+            height:180px;
+            margin:0 auto;
+            position:relative;
+
+            /*搭建3D效果必须的两个属性：一个变换风格变3d，一个场景景深800px*/
+            transform-style:preserve-3d;
+            transform:rotateX(-10deg) rotateY(0deg);
+
+        }
+        #wrap img{
+            width:100%;
+            height:100%;
+            position:absolute;
+
+            border-radius: 5px; /*加上圆角*/
+            box-shadow: 0px 0px 10px #fff;/*box-shadow 属性向框添加一个或多个阴影*/
+            -webkit-box-reflect: below 10px -webkit-linear-gradient(top,rgba(0,0,0,0) 50%,rgba(0,0,0,0.5) 100%);
+        }
+        #wrap p{
+            width:1200px;
+            height:1200px;
+            background:-webkit-radial-gradient(center center,600px 600px,rgba(244,23,234,0.2),rgba(0,0,0,0));
+            border-radius:100%;
+            position:absolute;
+            left:50%;
+            top:102%;
+            margin-left:-600px;
+            margin-top:-600px;
+            transform:rotateX(90deg);
+        }
+    </style>
+</head>
+<body>
+<div id="perspective">
+    <div id='wrap'>
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+        <img src="赛博朋克.jpg" />
+
+        <p></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    window.onload = function(){
+        var oWrap = document.getElementById('wrap');
+        var oImg = oWrap.getElementsByTagName('img');
+        var oImgLength = oImg.length;
+        var Deg = 360 / oImgLength;
+        var nowX , nowY , lastX , lastY , minusX = 0, minusY = 0;
+        var roY = 0 , roX = -10;
+        var timer;
+
+        for ( var i=0;i<oImgLength;i++ )
+        {
+            oImg[i].style.transform = 'rotateY('+ i*Deg +'deg) translateZ(350px)';
+            oImg[i].style.transition = 'transform 1s '+ (oImgLength-1-i)*0.1 +'s';
+
+        }
+
+        mTop();
+
+        window.onresize = mTop;
+
+        function mTop(){
+            var wH = document.documentElement.clientHeight;
+            oWrap.style.marginTop = wH / 2 - 180 + 'px';
+        }
+
+        // 拖拽：三个事件-按下 移动 抬起
+        //按下
+        document.onmousedown = function(ev){
+            ev = ev || window.event;
+
+            //鼠标按下的时候，给前一点坐标赋值，为了避免第一次相减的时候出错
+            lastX = ev.clientX;
+            lastY = ev.clientY;
+
+            //移动
+            this.onmousemove = function(ev){
+                ev = ev || window.event;
+
+                clearInterval( timer );
+
+                nowX = ev.clientX; // clientX 鼠标距离页面左边的距离
+                nowY = ev.clientY; // clientY ………………………………顶部………………
+
+                //当前坐标和前一点坐标差值
+                minusX = nowX - lastX;
+                minusY = nowY - lastY;
+
+                //更新wrap的旋转角度，拖拽越快-> minus变化大 -> roY变化大 -> 旋转快
+                roY += minusX*0.2; // roY = roY + minusX*0.2;
+                roX -= minusY*0.1;
+
+                oWrap.style.transform = 'rotateX('+ roX +'deg) rotateY('+ roY +'deg)';
+
+                /*
+                //生成div，让div跟着鼠标动
+                var oDiv = document.createElement('div');
+                oDiv.style.cssText = 'width:5px;height:5px;background:red;position:fixed;left:'+nowX+'px;top:'+nowY+'px';
+                this.body.appendChild(oDiv);
+                */
+
+                //前一点的坐标
+                lastX = nowX;
+                lastY = nowY;
+
+            }
+            //抬起
+            this.onmouseup = function(){
+                this.onmousemove = null;
+                timer = setInterval(function(){
+                    minusX *= 0.95;
+                    minusY *= 0.95;
+                    roY += minusX*0.2; // roY = roY + minusX*0.2;
+                    roX -= minusY*0.1;
+                    oWrap.style.transform = 'rotateX('+ roX +'deg) rotateY('+ roY +'deg)';
+
+                    if ( Math.abs(minusX)<0.1 && Math.abs( minusY )<0.1 )
+                    {
+                        clearInterval( timer );
+                    }
+                    console.log( minusX );
+                },13);
+            }
+            return false;
+        }
+    }
+
+</script>
+</body>
+</html>
